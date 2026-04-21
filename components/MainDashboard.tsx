@@ -1,167 +1,90 @@
-
-import React, { useState, useMemo } from 'react';
-import { TaskCard } from './TaskCard';
-import { Task } from '../types';
-import { History, Clock, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Sparkles } from 'lucide-react';
+import React from 'react';
+import { Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react';
 
 export const MainDashboard: React.FC = () => {
-  const [selectedDay, setSelectedDay] = useState(new Date().getDate());
-
-  // Generate current week dates for the Date Strip
-  const weekDates = useMemo(() => {
-    const dates = [];
-    const today = new Date();
-    for (let i = -3; i <= 10; i++) {
-      const d = new Date();
-      d.setDate(today.getDate() + i);
-      dates.push({
-        dayName: d.toLocaleDateString('en-US', { weekday: 'short' }),
-        date: d.getDate(),
-        fullDate: d.toDateString(),
-        isToday: d.toDateString() === today.toDateString()
-      });
-    }
-    return dates;
-  }, []);
-
-  const latestReleased: Task[] = [
-    {
-      id: '1',
-      subject: 'DSA - D',
-      type: 'Post Class',
-      title: 'RAM Model, Time and Space Complexity, Order of Growth, Big O...',
-      deadline: 'Jan 20th 2026, 1:35 pm',
-      xpValue: 80,
-      solved: 0,
-      total: 2,
-    },
-    {
-      id: '2',
-      subject: 'WAP Lab 1 - D',
-      type: 'In Class',
-      title: 'JavaScript Functions, JavaScript Function Expression, JavaScript...',
-      deadline: 'Jan 20th 2026, 1:24 pm',
-      xpValue: 80,
-      solved: 3,
-      total: 3,
-    },
-    {
-      id: '3',
-      subject: 'WAP - D',
-      type: 'Post Class',
-      title: 'JavaScript Functions, JavaScript Function Expression, JavaScript...',
-      deadline: 'Jan 19th 2026, 1:05 pm',
-      xpValue: 160,
-      solved: 0,
-      total: 4,
-    }
-  ];
-
-  const upcomingDeadlines: Task[] = [
-    {
-      id: '4',
-      subject: 'DSA - D',
-      type: 'Post Class',
-      title: 'Brute Force Implementation, Brute Force - Post Class',
-      deadline: 'Jan 18th 2026, 1:00 pm',
-      xpValue: 60,
-      solved: 0,
-      total: 2,
-      isDueTomorrow: true
-    },
-    {
-      id: '5',
-      subject: 'DSA Lab 1 - D',
-      type: 'In Class',
-      title: 'Problem Solving and Implementation - In Class',
-      deadline: 'Jan 19th 2026, 10:41 am',
-      xpValue: 80,
-      solved: 1,
-      total: 2,
-      isDueTomorrow: true
-    }
-  ];
-
-  // Logic to "adjust data" based on selection
-  const filteredLatest = useMemo(() => {
-    // Mock filtering logic: if day is even, show all; if odd, show subset
-    return selectedDay % 2 === 0 ? latestReleased : latestReleased.slice(0, 1);
-  }, [selectedDay]);
-
-  const renderSection = (title: string, sub: string, tasks: Task[], Icon: any) => (
-    <section className="mb-12 transition-all duration-500">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center">
-          <div className="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center mr-4 shadow-sm">
-            <Icon className="w-5 h-5 text-slate-500" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-slate-800">{title}</h2>
-            <p className="text-xs text-slate-400 font-medium">{sub}</p>
-          </div>
-        </div>
-        <div className="flex space-x-2">
-          <button className="p-2 border border-slate-100 rounded-lg bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button className="p-2 border border-slate-100 rounded-lg bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-      <div className="flex space-x-5 overflow-x-auto pb-4 no-scrollbar">
-        {tasks.length > 0 ? (
-          tasks.map(task => <TaskCard key={task.id} task={task} />)
-        ) : (
-          <div className="w-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-3xl opacity-40">
-            <Sparkles className="w-8 h-8 mb-2" />
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">No tasks for this date</p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Date Strip Header - Dark Theme */}
-      <div className="bg-[#09090b] p-4 rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between mb-4 px-2">
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-blue-500" />
-            <h3 className="text-xs font-black text-white uppercase tracking-widest">Schedule Observer</h3>
-          </div>
-          <span className="text-[10px] font-bold text-slate-500">JANUARY 2026</span>
-        </div>
-        
-        <div className="flex gap-3 overflow-x-auto no-scrollbar py-2">
-          {weekDates.map((item, idx) => (
-            <button
-              key={idx}
-              onClick={() => setSelectedDay(item.date)}
-              className={`flex flex-col items-center min-w-[56px] py-3 rounded-2xl transition-all duration-300 ${
-                selectedDay === item.date 
-                  ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] scale-105' 
-                  : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'
-              }`}
-            >
-              <span className={`text-[9px] font-black uppercase tracking-tighter mb-1 ${selectedDay === item.date ? 'text-blue-100' : 'text-slate-500'}`}>
-                {item.dayName}
-              </span>
-              <span className="text-sm font-bold">{item.date}</span>
-              {item.isToday && selectedDay !== item.date && (
-                <div className="w-1 h-1 bg-blue-600 rounded-full mt-1 shadow-[0_0_5px_rgba(37,99,235,0.8)]" />
-              )}
-            </button>
-          ))}
-        </div>
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Event Card 1 */}
+      <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-50 flex flex-col hover:shadow-lg transition-all duration-300">
+         {/* Header */}
+         <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+              RU
+            </div>
+            <div>
+               <h3 className="text-sm font-bold text-slate-800">MaNaS</h3>
+               <p className="text-[11px] text-slate-400">6/1/2026</p>
+            </div>
+         </div>
+
+         {/* Poster Image Area */}
+         <div className="w-full bg-[#cc2929] rounded-[24px] overflow-hidden mb-6 relative aspect-[16/9] flex items-center justify-center relative shadow-inner">
+            {/* Background Text Pattern */}
+            <div className="absolute inset-0 opacity-10 flex flex-col justify-between p-4 mix-blend-overlay break-words overflow-hidden leading-none text-[120px] font-black text-black">
+               GUGUGUGUGUGUGUGUGU
+            </div>
+            {/* Content Foreground */}
+            <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 bg-[#ebdbb5] w-[80%] h-[80%] rounded-xl shadow-2xl border-4 border-[#fff1d6]">
+               <h2 className="text-[#a12323] font-black text-2xl mb-4 leading-tight">
+                 SOLVING THE MYSTERIES OF<br/>SLEEP: NARCOLEPSY- SLEEP<br/>STRESS AND OREXIN
+               </h2>
+               <div className="flex gap-2">
+                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#dfa47e]/30 text-[#8c3a21] border border-[#d68f63] rounded-full text-[10px] font-bold">
+                    <CalendarIcon className="w-3 h-3" /> 7th Jan 2026
+                 </span>
+                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#dfa47e]/30 text-[#8c3a21] border border-[#d68f63] rounded-full text-[10px] font-bold">
+                    <Clock className="w-3 h-3" /> 10:00 AM - 11:00 AM
+                 </span>
+                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#dfa47e]/30 text-[#8c3a21] border border-[#d68f63] rounded-full text-[10px] font-bold">
+                    <MapPin className="w-3 h-3 text-rose-700" /> Mini Auditorium
+                 </span>
+               </div>
+               
+               <div className="mt-8 flex items-center gap-6 text-left w-full pl-8">
+                 <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white shadow-xl shrink-0">
+                    <img src="https://i.pravatar.cc/250?img=11" alt="Speaker" className="w-full h-full object-cover" />
+                 </div>
+                 <div>
+                    <h3 className="text-[#c73d3d] font-black text-xl mb-1">Dr. Mahesh K. Kaushik</h3>
+                    <p className="text-sm font-semibold text-[#8c3a21]">Assistant Professor and<br/>Neuroscientist<br/>IIIS, University of<br/>TSUKUBA, Japan</p>
+                 </div>
+               </div>
+            </div>
+         </div>
+
+         {/* Content Description */}
+         <p className="text-sm text-slate-700 leading-relaxed mb-1 inline">
+           MaNaS is pleased to organise a Guest Lecture by Dr. Mahesh Kaushik, Assistant Professor & Neuroscientist, IIIS, University of Tsukuba, Japan. Dr. Kaushik will ... <span className="text-rose-600 hover:text-rose-700 cursor-pointer text-sm font-medium">Read more</span>
+         </p>
+         
+         <hr className="my-5 border-slate-100" />
+
+         <div className="flex items-center gap-6">
+            <span className="flex items-center gap-2 text-xs font-medium text-slate-500">
+               <MapPin className="w-3.5 h-3.5" /> Mini auditorium
+            </span>
+            <span className="flex items-center gap-2 text-xs font-medium text-slate-500">
+               <CalendarIcon className="w-3.5 h-3.5" /> Wednesday, 7 January 2026 at 10:00 am
+            </span>
+         </div>
       </div>
 
-      {/* Dynamic Data Sections */}
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {renderSection("Latest Released", `Tasks active for Jan ${selectedDay}`, filteredLatest, History)}
-        {renderSection("Upcoming Deadlines", "Critical priority items", upcomingDeadlines, Clock)}
+      {/* Event Card 2 */}
+      <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-50 flex flex-col hover:shadow-lg transition-all duration-300">
+         <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+              RU
+            </div>
+            <div>
+               <h3 className="text-sm font-bold text-slate-800">Rishihood University</h3>
+               <p className="text-[11px] text-slate-400">10/9/2025</p>
+            </div>
+         </div>
+         <div className="w-full bg-[#cc2929] rounded-[24px] h-32 overflow-hidden flex items-center justify-center">
+            {/* Placeholder graphic */}
+         </div>
       </div>
+
     </div>
   );
 };

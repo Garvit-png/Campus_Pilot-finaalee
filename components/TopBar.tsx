@@ -1,6 +1,5 @@
-
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Bell, UserPlus, Search, User, Zap, Command, Trash2, Clock } from 'lucide-react';
+import React from 'react';
+import { Building2, ShieldHalf } from 'lucide-react';
 
 export interface Notification {
   id: number;
@@ -18,167 +17,48 @@ interface TopBarProps {
   onMarkRead?: () => void;
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ 
-  notifications = [], 
-  onNotificationClick = () => {}, 
-  onClearNotifications = () => {},
-  onMarkRead = () => {}
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleToggle = () => {
-    if (!isOpen) {
-      onMarkRead();
-    }
-    setIsOpen(!isOpen);
-  };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
+export const TopBar: React.FC<TopBarProps> = () => {
   return (
-    <header className="h-16 border-b border-slate-200 bg-white/80 backdrop-blur-md px-8 flex items-center justify-between shrink-0 sticky top-0 z-30 transition-all duration-300 relative">
-      <div className="flex items-center gap-6">
-        {/* Branch Selector */}
-        <button className="group flex items-center gap-3 pl-1 pr-4 py-1.5 rounded-full hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
-            <span className="text-[10px] text-white font-black">N</span>
-          </div>
-          <div className="flex flex-col items-start">
-             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">Cohort</span>
-             <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-slate-700 leading-none">NST'25 CS+AI RU</span>
-                <ChevronDown className="w-3 h-3 text-slate-400 group-hover:translate-y-0.5 transition-transform" />
-             </div>
-          </div>
-        </button>
-      </div>
-
-      {/* Global Search - Centered */}
-      <div className="flex-1 max-w-xl px-8 hidden md:block">
-         <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search for tasks, events, or peers..." 
-              className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-2.5 pl-11 pr-12 text-sm font-medium text-slate-600 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none placeholder:text-slate-400"
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-white border border-slate-200 rounded-md px-1.5 py-0.5 pointer-events-none">
-               <Command className="w-3 h-3 text-slate-400" />
-               <span className="text-[10px] font-bold text-slate-400">K</span>
-            </div>
+    <header className="bg-white rounded-[32px] px-8 py-3 flex items-center justify-between shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+      {/* Brand / Logo */}
+      <div className="flex items-center gap-2">
+         {/* Custom SVG logo based on Rishihood */}
+         <div className="text-red-700">
+           <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+             <path d="M12 0L24 4V12C24 20 12 28 12 28C12 28 0 20 0 12V4L12 0Z" fill="currentColor"/>
+             <path d="M12 2L4 5V12C4 18 12 24 12 24C12 24 20 18 20 12V5L12 2Z" fill="#ffefef"/>
+             <path d="M7 9C7 9 10 16 12 16C14 16 17 9 17 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+           </svg>
+         </div>
+         <div className="flex flex-col -space-y-1">
+            <span className="text-lg font-semibold tracking-tight text-slate-800">rishihood</span>
+            <span className="text-[10px] tracking-widest font-medium text-slate-500">university</span>
          </div>
       </div>
 
+      {/* Right Controls */}
       <div className="flex items-center gap-6">
-        {/* XP Tracker - Enhanced */}
-        <div className="hidden lg:flex items-center bg-slate-900 text-white px-1 py-1 pr-4 rounded-full shadow-xl shadow-slate-200 hover:shadow-2xl transition-all cursor-default group">
-          <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mr-3 shadow-inner group-hover:rotate-12 transition-transform">
-            <Zap className="w-4 h-4 text-white fill-white" />
-          </div>
-          <div className="flex flex-col">
-             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-0.5">Total XP</span>
-             <span className="text-sm font-black tracking-tight leading-none">2,366</span>
-          </div>
-        </div>
-
-        <div className="h-8 w-px bg-slate-200 mx-2 hidden sm:block" />
-
-        {/* Icons and Profile */}
-        <div className="flex items-center gap-3">
-          <button className="w-10 h-10 rounded-full hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-all relative">
-            <UserPlus className="w-5 h-5" />
+        <button className="text-slate-500 hover:text-slate-800 transition-colors">
+          <Building2 className="w-5 h-5" />
+        </button>
+        
+        <div className="flex items-center gap-2 bg-[#f8f9fb] rounded-full p-1 border border-slate-100">
+          <button className="flex items-center gap-2 bg-white shadow-sm border border-slate-100 rounded-full px-4 py-1.5 text-[11px] font-bold text-slate-700">
+            <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+            ERP
           </button>
-          
-          {/* Notification Bell with Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button 
-              id="tour-notifications"
-              onClick={handleToggle}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all relative ${isOpen ? 'bg-blue-50 text-blue-600' : 'hover:bg-slate-50 text-slate-400 hover:text-blue-600'}`}
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white animate-pulse" />
-              )}
-            </button>
-
-            {/* Dropdown Menu */}
-            {isOpen && (
-              <div className="absolute top-full right-0 mt-4 w-96 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right z-50">
-                <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                   <div className="flex items-center gap-2">
-                     <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Notifications</h3>
-                     <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-bold">{notifications.length}</span>
-                   </div>
-                   {notifications.length > 0 && (
-                     <button 
-                       onClick={onClearNotifications}
-                       className="text-[10px] font-bold text-slate-400 hover:text-rose-500 flex items-center gap-1 transition-colors uppercase tracking-wider"
-                     >
-                       <Trash2 className="w-3 h-3" /> Clear
-                     </button>
-                   )}
-                </div>
-                
-                <div className="max-h-[400px] overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="p-12 text-center flex flex-col items-center">
-                      <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-                        <Bell className="w-5 h-5 text-slate-300" />
-                      </div>
-                      <p className="text-sm font-bold text-slate-400">No new notifications</p>
-                      <p className="text-[10px] text-slate-300 mt-1 uppercase tracking-wide">You're all caught up!</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-slate-50">
-                      {notifications.map(notif => (
-                        <div 
-                          key={notif.id}
-                          onClick={() => { onNotificationClick(notif.eventId); setIsOpen(false); }}
-                          className="p-4 hover:bg-slate-50 transition-colors cursor-pointer group relative"
-                        >
-                          <div className="flex justify-between items-start mb-1">
-                             <h4 className="text-[11px] font-black text-slate-700 uppercase tracking-wide group-hover:text-blue-600 transition-colors">{notif.eventName}</h4>
-                             <span className="text-[10px] font-bold text-slate-300 flex items-center gap-1">
-                               <Clock className="w-3 h-3" /> {formatTime(notif.timestamp)}
-                             </span>
-                          </div>
-                          <p className="text-xs text-slate-500 font-medium leading-relaxed pr-4">
-                            {notif.text}
-                          </p>
-                          {!notif.read && (
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-white shadow-sm" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <div className="pl-2">
-            <button className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white shadow-sm hover:border-blue-200 transition-all overflow-hidden">
-               <img src="https://i.pravatar.cc/150?img=12" alt="Profile" className="w-full h-full object-cover" />
-            </button>
-          </div>
+          <button className="flex items-center gap-2 hover:bg-white rounded-full px-4 py-1.5 text-[11px] font-bold text-slate-500 transition-colors">
+            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full" />
+            LMS
+          </button>
         </div>
+
+        <button className="w-11 h-11 rounded-full border border-slate-200 bg-[#f4f5f7] flex items-center justify-center text-sm font-semibold text-slate-500 relative">
+          <svg className="absolute inset-0 w-full h-full text-rose-500" viewBox="0 0 100 100">
+             <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="60 100" strokeLinecap="round" className="opacity-80 -rotate-90 origin-center" />
+          </svg>
+          <span className="relative z-10">GG</span>
+        </button>
       </div>
     </header>
   );

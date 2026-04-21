@@ -37,7 +37,7 @@ interface ToastItem {
 }
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('Home');
+  const [activeTab, setActiveTab] = useState('Events');
   const [isMiniCalendarOpen, setIsMiniCalendarOpen] = useState(false);
   const [selectedGlobalDate, setSelectedGlobalDate] = useState<number | null>(null);
   const [exploringEventId, setExploringEventId] = useState<string | null>(null);
@@ -378,7 +378,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#fcfdfe] overflow-hidden text-slate-700 relative selection:bg-blue-100 selection:text-blue-900 animate-in fade-in duration-1000">
+    <div className="flex flex-col h-screen w-full bg-[#f5f6f8] text-slate-700 relative selection:bg-rose-100 selection:text-rose-900 overflow-hidden font-sans p-4 gap-4">
       
       {/* GLOBAL TOAST CONTAINER */}
       <div className="fixed top-20 right-6 z-[10001] flex flex-col gap-4 pointer-events-none w-96 perspective-[2000px]">
@@ -502,37 +502,38 @@ const App: React.FC = () => {
       `}} />
 
       {!isDetailsOpen && (
-        <Sidebar 
-          activeTab={activeTab} 
-          setActiveTab={handleTabChange} 
-          unopenedEventsCount={unopenedEventsCount}
+        <TopBar 
+          notifications={notifications}
+          onNotificationClick={(eventId: string) => {
+            if (activeTab !== 'Events') {
+              handleTabChange('Events');
+            }
+            setExploringEventId(eventId);
+            handleEventView(eventId);
+          }}
+          onClearNotifications={clearNotifications}
+          onMarkRead={markNotificationsRead}
         />
       )}
       
-      <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
+      <div className="flex flex-1 gap-4 overflow-hidden relative min-h-0">
         {!isDetailsOpen && (
-          <TopBar 
-            notifications={notifications}
-            onNotificationClick={(eventId) => {
-              // Ensure we transition to Events tab if not already there
-              if (activeTab !== 'Events') {
-                handleTabChange('Events');
-              }
-              setExploringEventId(eventId);
-              handleEventView(eventId);
-            }}
-            onClearNotifications={clearNotifications}
-            onMarkRead={markNotificationsRead}
+          <Sidebar 
+            activeTab={activeTab} 
+            setActiveTab={handleTabChange} 
+            unopenedEventsCount={unopenedEventsCount}
           />
         )}
         
-        <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 overflow-y-auto p-8 min-w-0 bg-[#f8fafc]/50 relative">
+        <main className="flex-1 overflow-y-auto min-w-0 flex gap-4 no-scrollbar">
+          <div className="flex-1 min-w-0">
             {renderContent()}
-          </main>
+          </div>
           
-          {activeTab === 'Home' && !isDetailsOpen && <RightPanel setActiveTab={handleTabChange} />}
-        </div>
+          {(!isDetailsOpen && (activeTab === 'Dashboard' || activeTab === 'Events')) && (
+             <RightPanel setActiveTab={handleTabChange} />
+          )}
+        </main>
       </div>
 
       <MiniFloatingCalendar 

@@ -1,137 +1,83 @@
-
 import React from 'react';
-import { ArrowRight, Calendar as CalendarIcon, Clock, User } from 'lucide-react';
+import { Check, AlertCircle } from 'lucide-react';
 
 interface RightPanelProps {
   setActiveTab?: (tab: string) => void;
 }
 
-export const RightPanel: React.FC<RightPanelProps> = ({ setActiveTab }) => {
-  const schedule = [
-    {
-      date: '19',
-      day: 'MON',
-      items: [
-        {
-          subject: 'WAP - D',
-          type: 'Lecture',
-          time: '9:00 AM - 10:30 AM'
-        },
-        {
-          subject: 'Maths II - D',
-          type: 'Lecture',
-          time: '1:00 PM - 2:30 PM'
-        }
-      ]
-    },
-    {
-      date: '20',
-      day: 'TUE',
-      items: [
-        {
-          subject: 'Maths II Tut 1 - D',
-          type: 'Lecture',
-          time: '9:00 AM - 10:20 AM'
-        },
-        {
-          subject: 'DSA - D',
-          type: 'Lecture',
-          time: '10:30 AM - 12:00 PM'
-        }
-      ]
-    }
+export const RightPanel: React.FC<RightPanelProps> = () => {
+  const profileSteps = [
+    { label: 'Update bio', completed: true },
+    { label: 'Interests', completed: false },
+    { label: 'Extra-Curricular Activities', completed: false },
+    { label: 'Projects', completed: false },
+    { label: 'Publications / Research', completed: false },
+    { label: 'Work Experience', completed: false },
+    { label: 'Skills', completed: false },
+    { label: 'Courses / Certifications', completed: false },
+    { label: 'Achievements / Awards', completed: false },
   ];
 
   return (
-    <aside className="w-[380px] border-l border-slate-200 bg-white flex flex-col h-full shrink-0 overflow-y-auto">
-      <div className="p-6 space-y-8">
-        
-        {/* Live Challenge Card */}
-        <div className="bg-[#f0f5ff] rounded-3xl p-6 relative overflow-hidden group">
-          {/* Status Badges */}
-          <div className="flex justify-between items-center mb-6">
-            <span className="flex items-center bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">
-              <span className="w-1.5 h-1.5 bg-white rounded-full mr-1.5 animate-pulse"></span>
-              Live
-            </span>
-            <span className="flex items-center bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">
-              Ends in 11:00:38
-            </span>
-          </div>
-
-          <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Question of the day</h3>
-          <h2 className="text-xl font-bold text-slate-800 mb-6 leading-tight">Balanced Quadruples in a...</h2>
-
-          <div className="flex items-center mb-8">
-            {/* Replaced actual photos with placeholder avatars */}
-            <div className="flex -space-x-2 mr-3">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center">
-                  <User className="w-4 h-4 text-slate-400" />
-                </div>
-              ))}
-            </div>
-            <span className="text-[11px] font-semibold text-slate-500">136 people have attempted</span>
-          </div>
-
-          <button className="w-full bg-slate-900 hover:bg-black text-white rounded-2xl py-3.5 px-6 flex items-center justify-center text-sm font-bold transition-all shadow-xl shadow-slate-200 active:scale-[0.98]">
-            Solve Now
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </button>
-
-          {/* Abstract pattern */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-100 rounded-full blur-3xl -mr-8 -mt-8 opacity-50"></div>
+    <aside className="w-[400px] shrink-0 h-full overflow-y-auto space-y-6 pb-20 no-scrollbar pr-2">
+      
+      {/* Breakfast Card */}
+      <div className="bg-[#fcfdff] rounded-[24px] shadow-sm border border-slate-50 flex overflow-hidden w-full relative h-[100px]">
+        {/* Left Vertical Strip */}
+        <div className="bg-[#b33949] w-12 flex items-center justify-center shrink-0">
+          <span className="text-white text-[11px] font-bold uppercase tracking-widest -rotate-90 whitespace-nowrap pt-1">
+            Breakfast
+          </span>
         </div>
-
-        {/* Calendar Section */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold text-slate-800">Calendar</h3>
-              <p className="text-[11px] text-slate-400 font-medium">Your schedule for the next days</p>
-            </div>
-            <button 
-              onClick={() => setActiveTab?.('Calendar')}
-              className="flex items-center text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 transition-colors"
-            >
-              View
-              <CalendarIcon className="w-3.5 h-3.5 ml-2" />
-            </button>
-          </div>
-
-          {/* Today Banner */}
-          <div className="bg-gradient-to-r from-orange-400 to-rose-400 rounded-2xl p-4 text-white">
-            <p className="text-xs font-bold">You have 0 events today</p>
-          </div>
-
-          {/* Schedule List */}
-          <div className="space-y-8">
-            {schedule.map((day) => (
-              <div key={day.date} className="flex space-x-6">
-                <div className="flex flex-col items-center pt-1 min-w-[32px]">
-                  <span className="text-lg font-bold text-slate-800 leading-none">{day.date}</span>
-                  <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">{day.day}</span>
-                </div>
-                <div className="flex-1 space-y-6">
-                  {day.items.map((item, i) => (
-                    <div key={i} className="group">
-                      <div className="flex flex-col">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.subject}</span>
-                        <h4 className="text-sm font-bold text-slate-800 mt-0.5">{item.type}</h4>
-                        <div className="flex items-center text-[11px] text-slate-400 font-medium mt-1">
-                          <Clock className="w-3 h-3 mr-1.5" />
-                          {item.time}
-                        </div>
-                      </div>
-                      {i < day.items.length - 1 && <div className="h-px bg-slate-50 w-full mt-6" />}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Content */}
+        <div className="p-5 flex flex-col justify-center bg-white/50 w-full rounded-r-[24px]">
+           <span className="text-xs font-semibold text-slate-500 mb-1.5 flex items-center">
+             07:00 AM - 09:30 AM
+           </span>
+           <span className="text-sm font-bold text-slate-700">
+             Menu will be updated soon
+           </span>
         </div>
       </div>
+
+      {/* Profile Strength Card */}
+      <div className="bg-white rounded-[24px] shadow-sm border border-slate-50 p-6 flex flex-col">
+        <h3 className="text-base font-bold text-slate-800 mb-1">Profile strength</h3>
+        <p className="text-[11px] text-slate-400 font-medium mb-5">Complete your profile to get discovered by recruiters & peers</p>
+        
+        {/* Progress Bar Container */}
+        <div className="mb-6 flex flex-col items-end gap-1.5">
+          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+             <div className="h-full bg-rose-500 rounded-full w-[11%]" />
+          </div>
+          <span className="text-[11px] font-bold text-slate-500">11%</span>
+        </div>
+
+        {/* Requirements List */}
+        <div className="space-y-4">
+          {profileSteps.map((step, idx) => (
+            <div key={idx} className="flex justify-between items-center group cursor-pointer">
+              <div className="flex items-center gap-3">
+                <span className={`w-2 h-2 rounded-full ${step.completed ? 'bg-emerald-500' : 'bg-slate-300 group-hover:bg-slate-400'} transition-colors`} />
+                <span className={`text-[13px] font-medium transition-colors ${step.completed ? 'text-slate-800' : 'text-slate-500 group-hover:text-slate-700'}`}>
+                  {step.label}
+                </span>
+              </div>
+              
+              {step.completed ? (
+                <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center">
+                  <Check className="w-3 h-3 text-emerald-500 stroke-[3]" />
+                </div>
+              ) : (
+                <div className="w-5 h-5 rounded-full border border-slate-100 flex items-center justify-center shadow-sm">
+                  <AlertCircle className="w-3 h-3 text-slate-300" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      
     </aside>
   );
 };
