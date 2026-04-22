@@ -188,9 +188,7 @@ export const EVENTS_MOCK: CampusEvent[] = [
     xp: 2500,
     attendees: 1200,
     sectionParticipants: 42,
-    prizePool: "₹5,00,000",
-    tracks: ["Web3 Foundations", "HFT Optimization", "Quantum Ready Apps"],
-    posterUrl: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&q=80&w=1000",
+    posterUrl: "/assets/images/global_ai_hackathon_hero_1776800152149.png",
     description: "The biggest tech convergence in the financial capital. From high-frequency trading algorithms to decentralized architectures. Experience the spirit of Mumbai's tech ecosystem without the traffic.",
     jokes: [
       "Mumbai jaana hai ya nahi- Take part in mumbai hacks"
@@ -225,7 +223,7 @@ export const EVENTS_MOCK: CampusEvent[] = [
     featured: true,
     prizePool: "$50,000",
     tracks: ["LLM Agents", "Computer Vision", "AI Safety", "Generative Art"],
-    posterUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000",
+    posterUrl: "/assets/images/global_ai_hackathon_hero_1776800152149.png",
     description: "The ultimate showdown of neural networks. Build the future of AGI in 48 hours. Dive into high-concurrency challenges and state-of-the-art inference optimization. No sleep, just code. This event brings together the brightest minds to solve real-world problems using the latest in AI technology.",
     jokes: ["AI Hackathon? Bhai, ChatGPT se copy-paste karna 'hacking' nahi hota."],
     timeline: [
@@ -315,7 +313,7 @@ export const EVENTS_MOCK: CampusEvent[] = [
     attendees: 120,
     sectionParticipants: 8,
     tracks: ["Figma 101", "Design Systems"],
-    posterUrl: "https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?auto=format&fit=crop&q=80&w=1000",
+    posterUrl: "/assets/images/ui_mastery_workshop_poster_1776800187166.png",
     description: "Sacred art of whitespace and color theory. Learn why 'making the logo bigger' is a sin and how to build components that don't break.",
     jokes: ["UI Master banega? Tera choice of colors dekh ke meri aankhein ro rahi hain."],
     timeline: [{ time: "10:00 AM", title: "Intro to Figma", desc: "Basics of layout." }],
@@ -366,7 +364,7 @@ export const EVENTS_MOCK: CampusEvent[] = [
     sectionParticipants: 45,
     prizePool: "₹2,00,000",
     tracks: ["Deathmatch", "Obstacle Course"],
-    posterUrl: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1000",
+    posterUrl: "/assets/images/robowars_2026_poster_1776801509250.png",
     description: "Sparks, metal, and destruction. Bring your battle bots to the arena and fight for glory. Safety goggles mandatory.",
     jokes: ["It's not a bug, it's a surprise weapon.", "My robot is peaceful, said no one ever."],
     timeline: [
@@ -419,7 +417,7 @@ export const EVENTS_MOCK: CampusEvent[] = [
     attendees: 500,
     sectionParticipants: 100,
     tracks: ["Live Music", "Open Mic"],
-    posterUrl: "https://images.unsplash.com/photo-1501612780327-45045538702b?auto=format&fit=crop&q=80&w=1000",
+    posterUrl: "/assets/images/acoustic_night_poster_1776801630580.png",
     description: "Under the stars, music that heals. Bring your instruments or just your ears.",
     jokes: ["I play the triangle professionally.", "Free food? Count me in."],
     timeline: [{ time: "06:00 PM", title: "Opening Act", desc: "Local band performance." }],
@@ -850,16 +848,16 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   const renderEventGrid = (events: CampusEvent[], title: string, Icon: any, colorClass: string, id?: string) => {
     if (events.length === 0) return null;
     return (
-      <div className="space-y-8">
-        <div id={id} className="flex items-center justify-between border-b border-slate-100 pb-4 px-2">
-          <div className="flex items-center gap-3">
-            <Icon className={`w-5 h-5 ${colorClass.replace('bg-', 'text-')}`} />
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">{title}</h2>
+      <div className="space-y-6">
+        <div id={id} className="flex items-center justify-between border-b border-slate-100 pb-3 px-1">
+          <div className="flex items-center gap-2.5">
+            <Icon className={`w-4 h-4 ${colorClass.replace('bg-', 'text-')}`} />
+            <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest">{title}</h2>
           </div>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{events.length} results</span>
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-60">{events.length} listings</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {events.map(event => {
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 px-1">
+          {events.map((event) => {
             const isInterested = interestedIds.has(event.id);
             const isNotInterested = notInterestedIds.has(event.id);
             const isRegistered = registeredIds.has(event.id);
@@ -887,43 +885,43 @@ export const EventsPage: React.FC<EventsPageProps> = ({
             } else if (isPast) {
                timeString = "Happened recently";
                isUrgent = false;
-            }
-
-            return (
+             }
+ 
+             return (
               <div 
                 key={event.id} 
-                className={`group relative bg-white rounded-[32px] overflow-hidden transition-all duration-500 hover:translate-y-[-8px] border ${
+                className={`group relative bg-white rounded-[28px] overflow-hidden transition-all duration-300 border h-[340px] w-full flex flex-col ${
                   isUrgent 
-                    ? 'border-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.15)] hover:shadow-[0_20px_40px_rgba(244,63,94,0.2)]'
-                    : isNotInterested ? 'border-slate-100 opacity-60' 
-                    : isInterested ? 'border-rose-200 shadow-[0_10px_30px_rgba(244,63,94,0.08)]' : 'border-slate-100'
-                } shadow-[0_4px_20px_rgba(0,0,0,0.03)]`}
+                    ? 'border-slate-100 shadow-[0_10px_25px_rgba(0,0,0,0.03)]'
+                    : isNotInterested ? 'border-slate-50 opacity-60' 
+                    : isInterested ? 'border-rose-100 shadow-[0_8px_25px_rgba(244,63,94,0.06)]' : 'border-slate-100'
+                } shadow-[0_4px_15px_rgba(0,0,0,0.02)]`}
               >
                 <div 
-                  className="relative aspect-[4/3] overflow-hidden cursor-pointer" 
+                  className="relative aspect-video overflow-hidden cursor-pointer shrink-0" 
                   onClick={() => { setExploringEvent(event); onEventView?.(event.id); }}
                 >
-                  <ImageWithFallback src={event.posterUrl} alt={event.title} className="w-full h-full" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-8">
-                     <span className="text-white text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2">
-                        View Details <ArrowRight className="w-4 h-4" />
+                  <ImageWithFallback src={event.posterUrl} alt={event.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 transition-all duration-300 flex items-center justify-center p-4">
+                     <span className="text-white text-[9px] font-black uppercase tracking-widest bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">
+                        View Details
                      </span>
                   </div>
                   
-                  <div className="absolute top-5 left-5 flex gap-2 z-20">
-                    <div className="bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-slate-900 shadow-sm border border-slate-100">
+                  <div className="absolute top-4 left-4 flex gap-1.5 z-20">
+                    <div className="bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest text-slate-900 shadow-sm border border-slate-100">
                       {event.category}
                     </div>
                     {!viewedEventIds.has(event.id) && !isPast && (
-                       <div className="bg-rose-500 text-white px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg shadow-rose-500/20 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse shadow-sm" />
+                       <div className="bg-rose-500 text-white px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shadow-lg shadow-rose-500/20 flex items-center gap-1">
+                          <span className="w-1 h-1 bg-white rounded-full animate-pulse" />
                           NEW
                        </div>
                     )}
                   </div>
 
                   {timeString && (
-                     <div className={`absolute bottom-5 right-5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2 border ${
+                     <div className={`absolute bottom-5 right-5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2 border transition-all ${
                         isPast 
                         ? 'bg-slate-100 text-slate-500 border-slate-200'
                         : isUrgent 
@@ -947,50 +945,50 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                   )}
                 </div>
                 
-                <div className="p-8">
-                  <div className="flex items-center gap-2 mb-2">
-                     <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
-                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{event.date}</span>
+                 <div className="p-5 flex-1 flex flex-col justify-between bg-white">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2 shrink-0">
+                       <CalendarDays className="w-3 h-3 text-slate-400" />
+                       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{event.date}</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 leading-tight transition-colors line-clamp-2">
+                      {event.title}
+                    </h3>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-800 leading-tight mb-8 min-h-[3rem] line-clamp-2">
-                    {event.title}
-                  </h3>
                   
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2 pt-4">
                     <button 
                       onClick={() => { setExploringEvent(event); onEventView?.(event.id); }}
-                      className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 shadow-xl ${
+                      className={`w-full py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 ${
                          isUrgent 
-                         ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-rose-200'
-                         : 'bg-slate-900 hover:bg-black text-white shadow-slate-200'
+                         ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-rose-200'
+                         : 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-slate-200'
                       }`}
                     >
-                      {isUrgent && <Flame className="w-3 h-3 fill-white" />}
-                      Explore Details
+                      View Details
                     </button>
                     
-                    <div className="flex gap-3">
+                    <div className="flex gap-2">
                        <button 
                          onClick={() => toggleInterested(event.id)}
-                         className={`flex-1 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border ${
+                         className={`flex-1 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border bg-white ${
                            isInterested 
-                             ? 'bg-rose-50 text-rose-500 border-rose-100' 
-                             : 'bg-white text-slate-400 border-slate-100 hover:border-rose-200'
+                             ? 'text-rose-500 border-rose-200 shadow-sm' 
+                             : 'text-slate-400 border-slate-100 hover:border-rose-100'
                          }`}
                        >
-                         <Heart className={`w-3.5 h-3.5 ${isInterested ? 'fill-rose-500' : ''}`} />
+                         <Heart className={`w-3 h-3 ${isInterested ? 'fill-rose-500' : ''}`} />
                          {isInterested ? 'Saved' : 'Interested'}
                        </button>
                        <button 
                          onClick={() => markNotInterested(event.id)}
-                         className={`p-3.5 rounded-2xl transition-all border ${
+                         className={`px-3 py-2.5 rounded-xl transition-all border bg-white ${
                            isNotInterested 
-                            ? 'bg-slate-100 text-slate-500 border-slate-200' 
-                            : 'bg-white text-slate-300 border-slate-100 hover:border-slate-300'
+                            ? 'text-slate-400 border-slate-200' 
+                            : 'text-slate-300 border-slate-100 hover:bg-slate-50'
                          }`}
-                         title="Not Interested"
                        >
-                         <ThumbsDown className="w-4 h-4" />
+                         <ThumbsDown className="w-3 h-3" />
                        </button>
                     </div>
                   </div>
@@ -1004,7 +1002,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   };
 
   return (
-    <div className={`h-full flex flex-col space-y-16 animate-in fade-in duration-1000 pb-32 overflow-y-auto no-scrollbar transition-all duration-500 ${isCalendarOpen ? 'pr-[320px]' : ''}`}>
+    <div className={`h-full flex flex-col space-y-12 animate-in fade-in duration-1000 pb-20 overflow-y-auto no-scrollbar transition-all duration-500`}>
       
       {showTutorial && (
         <TutorialOverlay 
@@ -1015,79 +1013,83 @@ export const EventsPage: React.FC<EventsPageProps> = ({
       )}
 
       {/* SPOTLIGHT SECTION */}
-      <section className="relative w-full rounded-[48px] overflow-hidden bg-slate-900 aspect-[21/9] flex items-center group shadow-2xl">
+      <section className="relative w-full min-h-[300px] md:min-h-[420px] rounded-[48px] overflow-hidden bg-slate-950 flex items-center group shadow-2xl shrink-0">
          <ImageWithFallback 
-           src="https://images.unsplash.com/photo-1540575861501-7ce0e220abb4?auto=format&fit=crop&q=80&w=2000" 
+           src="/assets/images/global_ai_hackathon_hero_1776800152149.png" 
            alt="Header" 
-           className="absolute inset-0 w-full h-full opacity-40 grayscale-[0.3] group-hover:scale-105 group-hover:grayscale-0 transition-all duration-1000"
+           className="absolute inset-0 w-full h-full opacity-40 grayscale-[0.2] group-hover:scale-105 group-hover:grayscale-0 transition-all duration-1000"
          />
-         <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(15,23,42,1)_20%,rgba(15,23,42,0.1)_100%)]" />
+         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/40 to-transparent" />
          
-         <div className="relative z-10 p-16 max-w-2xl space-y-8">
+         {/* Glassmorphic Content Card */}
+         <div className="relative z-10 ml-8 md:ml-16 p-6 md:p-10 rounded-[32px] bg-white/5 backdrop-blur-xl border border-white/10 max-w-xl space-y-4 shadow-2xl animate-in fade-in slide-in-from-left duration-1000">
             <div className="flex items-center gap-3">
-               <span className="bg-rose-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl shadow-rose-500/20">Active Spotlight</span>
-               <div id="tour-timer" className="flex items-center gap-2 text-rose-400 font-bold text-xs uppercase tracking-widest">
-                  <Timer className="w-4 h-4 animate-spin-slow" /> Starts in 4 Days
+               <span className="bg-rose-600 text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-rose-600/20">Featured Event</span>
+               <div id="tour-timer" className="flex items-center gap-2 text-rose-400 font-bold text-[9px] uppercase tracking-[0.2em]">
+                  <Timer className="w-3.5 h-3.5 animate-spin-slow" /> Starting Jan 24
                </div>
             </div>
-            <h1 className="text-6xl font-black text-white tracking-tighter leading-[0.9]">GLOBAL AI<br/>HACKATHON</h1>
-            <p className="text-lg text-slate-300 font-medium leading-relaxed max-w-lg">
-               The ultimate 48-hour sprint to build AGI-ready solutions. 2500+ participants. $50k in prizes.
+            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-[0.85] drop-shadow-2xl">
+               GLOBAL AI<br/>
+               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/40">HACKATHON</span>
+            </h1>
+            <p className="text-sm md:text-base text-slate-300 font-medium leading-relaxed max-w-md opacity-70">
+               Join 2,500+ developers in the world's most intense 48-hour sprint to define the future of AGI.
             </p>
-            <div className="flex items-center gap-4 pt-4">
+            <div className="flex items-center gap-4 pt-2">
                <button 
                   onClick={() => { const e = EVENTS_MOCK.find(ev => ev.id === 'e1'); if(e) { setExploringEvent(e); onEventView?.(e.id); } }} 
-                  className="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl hover:bg-slate-50 transition-all"
+                  className="px-8 py-3.5 bg-white text-slate-950 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] shadow-xl hover:bg-rose-50 transition-all hover:-translate-y-0.5 active:translate-y-0"
                >
-                  Explore Now
+                  Register Now
                </button>
-               <button className="px-8 py-4 bg-white/10 backdrop-blur-xl text-white border border-white/20 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white/20 transition-all">
-                  Guide Book
+               <button className="px-8 py-3.5 bg-white/5 backdrop-blur-md text-white border border-white/10 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] hover:bg-white/10 transition-all">
+                  Event Menu
                </button>
             </div>
          </div>
       </section>
 
       {/* SEARCH AND FILTER BAR */}
-      <div className="flex flex-col lg:flex-row items-end justify-between gap-8 px-4">
-        <div className="max-w-xl w-full">
-           <div className="flex items-center gap-3 mb-4">
-              <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
-              <h2 className="text-base font-black text-slate-400 uppercase tracking-widest">Find Your Next Challenge</h2>
+      <div className="flex flex-col gap-10 px-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+           <div>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-1 uppercase">Vault <span className="text-slate-400">Events</span></h2>
+              <p className="text-[10px] text-slate-400 font-bold tracking-[0.3em] uppercase">Curated campus opportunities</p>
            </div>
            
-           <div className="relative group">
-             <Search className="absolute left-8 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
-             <input 
-               type="text" 
-               placeholder="Hackathons, design sprints, or cultural fests..." 
-               className="w-full bg-white border border-slate-100 pl-16 pr-8 py-5 rounded-[24px] text-lg focus:ring-[12px] focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all shadow-sm hover:shadow-lg"
-               value={searchQuery}
-               onChange={(e) => setSearchQuery(e.target.value)}
-             />
+           <div id="tour-filter" className="flex flex-wrap items-center gap-1.5 p-1.5 bg-white/40 border border-slate-200/60 rounded-2xl backdrop-blur-md self-start md:self-auto shadow-sm">
+             {['All', 'Competition', 'Workshop', 'Fest', 'Seminar'].map(cat => (
+               <button
+                 key={cat}
+                 onClick={() => setActiveFilter(cat)}
+                 className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                   activeFilter === cat ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10' : 'text-slate-400 hover:text-slate-700'
+                 }`}
+               >
+                 {cat}
+               </button>
+             ))}
            </div>
         </div>
-        
-        <div id="tour-filter" className="flex flex-wrap items-center gap-2 bg-slate-100/30 p-2 rounded-[24px] ring-1 ring-slate-100/50 backdrop-blur-sm">
-          {['All', 'Competition', 'Workshop', 'Fest', 'Seminar'].map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              className={`px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all ${
-                activeFilter === cat ? 'bg-white text-slate-900 shadow-xl shadow-slate-200/50' : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+
+        <div className="relative group max-w-2xl">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
+          <input 
+            type="text" 
+            placeholder="Search Vault..." 
+            className="w-full bg-white border border-slate-100 pl-14 pr-6 py-4 rounded-2xl text-xs font-bold uppercase tracking-widest focus:ring-[10px] focus:ring-rose-600/5 focus:border-rose-500 outline-none transition-all shadow-[0_4px_20px_-5px_rgba(0,0,0,0.05)] placeholder:text-slate-300"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
       </div>
 
       {/* EVENT GRIDS */}
-      <div className="space-y-32 px-4">
+      <div className="space-y-16 px-4">
         {renderEventGrid(categories.nearDeadline, "Closing Soon", AlertCircle, "bg-rose-500", "tour-closing")}
-        {renderEventGrid(categories.upcoming, "Upcoming Feed", CalendarCheck, "bg-blue-600", "tour-upcoming")}
-        {renderEventGrid(categories.past, "Past Archives", Ticket, "bg-slate-800", "tour-past")}
+        {renderEventGrid(categories.upcoming, "Upcoming Events", CalendarCheck, "bg-blue-600", "tour-upcoming")}
+        {renderEventGrid(categories.past, "Event History", Ticket, "bg-slate-800", "tour-past")}
       </div>
       
       {/* ... Portal content ... */}

@@ -37,7 +37,7 @@ interface ToastItem {
 }
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('Events');
+  const [activeTab, setActiveTab] = useState('Dashboard');
   const [isMiniCalendarOpen, setIsMiniCalendarOpen] = useState(false);
   const [selectedGlobalDate, setSelectedGlobalDate] = useState<number | null>(null);
   const [exploringEventId, setExploringEventId] = useState<string | null>(null);
