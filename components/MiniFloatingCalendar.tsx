@@ -85,8 +85,8 @@ export const MiniFloatingCalendar: React.FC<MiniFloatingCalendarProps> = ({
           </div>
 
           <div className="grid grid-cols-7 gap-2 mb-3">
-            {daysOfWeek.map(day => (
-              <div key={day} className="h-6 flex items-center justify-center text-[10px] font-black text-slate-300 uppercase">{day}</div>
+            {daysOfWeek.map((day, index) => (
+              <div key={`${day}-${index}`} className="h-6 flex items-center justify-center text-[10px] font-black text-slate-300 uppercase">{day}</div>
             ))}
           </div>
 

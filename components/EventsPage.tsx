@@ -150,6 +150,8 @@ const getUrgentDateInfo = () => {
 
 const urgentInfo = getUrgentDateInfo();
 
+let tutorialShownThisLoad = false;
+
 export const EVENTS_MOCK: CampusEvent[] = [
   {
     id: 'e_urgent_flash',
@@ -671,6 +673,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   viewedEventIds
 }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [activeStatusFilter, setActiveStatusFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [exploringEvent, setExploringEvent] = useState<CampusEvent | null>(null);
   
@@ -695,8 +698,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   }, []);
 
   useEffect(() => {
-    const tutorialDone = localStorage.getItem('campus_pilot_tutorial_done');
-    if (!tutorialDone) {
+    if (!tutorialShownThisLoad) {
       const timer = setTimeout(() => setShowTutorial(true), 1000);
       return () => clearTimeout(timer);
     }
@@ -704,7 +706,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
 
   const handleTutorialComplete = () => {
     setShowTutorial(false);
-    localStorage.setItem('campus_pilot_tutorial_done', 'true');
+    tutorialShownThisLoad = true;
   };
 
   useEffect(() => {
@@ -739,13 +741,34 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   };
 
   const filteredData = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+
     return EVENTS_MOCK.filter(e => {
       const matchesCategory = activeFilter === 'All' || e.category === activeFilter;
-      const matchesSearch = e.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = (() => {
+        if (activeStatusFilter === 'All') return true;
+        if (activeStatusFilter === 'Live') return e.type === 'Live';
+        if (activeStatusFilter === 'Upcoming') return e.type === 'Upcoming';
+        if (activeStatusFilter === 'Closed') return e.type === 'Closed';
+        if (activeStatusFilter === 'Interested') return interestedIds.has(e.id);
+        if (activeStatusFilter === 'Registered') return registeredIds.has(e.id);
+        if (activeStatusFilter === 'Not Interested') return notInterestedIds.has(e.id);
+        return true;
+      })();
+      const matchesSearch = query.length === 0 || [e.title, e.category, e.location, e.description ?? '']
+        .join(' ')
+        .toLowerCase()
+        .includes(query);
       const matchesDate = selectedDate ? e.dayOfMonth === selectedDate : true;
-      return matchesCategory && matchesSearch && matchesDate;
+      return matchesCategory && matchesStatus && matchesSearch && matchesDate;
     });
-  }, [activeFilter, searchQuery, selectedDate]);
+  }, [activeFilter, activeStatusFilter, searchQuery, selectedDate, interestedIds, registeredIds, notInterestedIds]);
+
+  const clearFilters = () => {
+    setActiveFilter('All');
+    setActiveStatusFilter('All');
+    setSearchQuery('');
+  };
 
   const categories = useMemo(() => {
     const nearDeadline = filteredData.filter(e => e.dayOfMonth >= TODAY_DAY && e.dayOfMonth <= TODAY_DAY + 3);
@@ -1058,18 +1081,46 @@ export const EventsPage: React.FC<EventsPageProps> = ({
               <p className="text-[10px] text-slate-400 font-bold tracking-[0.3em] uppercase">Curated campus opportunities</p>
            </div>
            
-           <div id="tour-filter" className="flex flex-wrap items-center gap-1.5 p-1.5 bg-white/40 border border-slate-200/60 rounded-2xl backdrop-blur-md self-start md:self-auto shadow-sm">
-             {['All', 'Competition', 'Workshop', 'Fest', 'Seminar'].map(cat => (
+           <div id="tour-filter" className="flex flex-col gap-3 p-3 bg-white/40 border border-slate-200/60 rounded-2xl backdrop-blur-md self-start md:self-auto shadow-sm w-full md:w-auto">
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+               <label className="flex flex-col gap-1">
+                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 px-1">Category</span>
+                 <select
+                   value={activeFilter}
+                   onChange={(e) => setActiveFilter(e.target.value)}
+                   className="min-w-[180px] bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-700 outline-none focus:ring-4 focus:ring-rose-600/10 focus:border-rose-500 shadow-sm"
+                 >
+                   {['All', 'Competition', 'Workshop', 'Fest', 'Seminar'].map(cat => (
+                     <option key={cat} value={cat}>{cat}</option>
+                   ))}
+                 </select>
+               </label>
+
+               <label className="flex flex-col gap-1">
+                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 px-1">Status</span>
+                 <select
+                   value={activeStatusFilter}
+                   onChange={(e) => setActiveStatusFilter(e.target.value)}
+                   className="min-w-[180px] bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-700 outline-none focus:ring-4 focus:ring-rose-600/10 focus:border-rose-500 shadow-sm"
+                 >
+                   {['All', 'Live', 'Upcoming', 'Closed', 'Interested', 'Registered', 'Not Interested'].map(status => (
+                     <option key={status} value={status}>{status}</option>
+                   ))}
+                 </select>
+               </label>
+             </div>
+
+             <div className="flex items-center justify-between gap-3">
+               <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                 Use the dropdowns to narrow the event list
+               </p>
                <button
-                 key={cat}
-                 onClick={() => setActiveFilter(cat)}
-                 className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                   activeFilter === cat ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10' : 'text-slate-400 hover:text-slate-700'
-                 }`}
+                 onClick={clearFilters}
+                 className="px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-700 border border-transparent hover:border-slate-200 bg-white/70"
                >
-                 {cat}
+                 Reset
                </button>
-             ))}
+             </div>
            </div>
         </div>
 
@@ -1083,6 +1134,15 @@ export const EventsPage: React.FC<EventsPageProps> = ({
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+
+        {(activeFilter !== 'All' || activeStatusFilter !== 'All' || searchQuery.trim()) && (
+          <div className="flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+            <span>{filteredData.length} events matched</span>
+            {activeFilter !== 'All' && <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">Category: {activeFilter}</span>}
+            {activeStatusFilter !== 'All' && <span className="px-3 py-1 rounded-full bg-rose-50 text-rose-600">Status: {activeStatusFilter}</span>}
+            {searchQuery.trim() && <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600">Search: {searchQuery.trim()}</span>}
+          </div>
+        )}
       </div>
 
       {/* EVENT GRIDS */}
