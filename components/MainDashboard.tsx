@@ -76,7 +76,7 @@ export const MainDashboard: React.FC = () => {
               RU
             </div>
             <div>
-               <h3 className="text-sm font-bold text-slate-800">Rishihood University</h3>
+               <h3 className="text-sm font-bold text-slate-800">Robinhood University</h3>
                <p className="text-[11px] text-slate-400">10/9/2025</p>
             </div>
          </div>

@@ -8,6 +8,7 @@ import { FullCalendarPage } from './components/FullCalendarPage';
 import { EventsPage, EVENTS_MOCK, CampusEvent } from './components/EventsPage';
 import { MiniFloatingCalendar } from './components/MiniFloatingCalendar';
 import { LoginPage } from './components/LoginPage';
+import { EventSplash } from './components/EventSplash';
 import { MessageSquareWarning, Ghost, ArrowRight, X, Radio, BellRing, Layout } from 'lucide-react';
 
 // Helper to strictly parse event dates for comparison
@@ -374,7 +375,7 @@ const App: React.FC = () => {
 
   // INTERSTITIAL SPLASH SCREEN FOR EVENTS
   if (showEventsSplash) {
-    return <LoginPage onLogin={handleSplashComplete} loadingText="Accessing Events Arena..." />;
+    return <EventSplash onComplete={handleSplashComplete} />;
   }
 
   return (

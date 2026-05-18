@@ -595,7 +595,7 @@ export const EVENTS_MOCK: CampusEvent[] = [
     certification: true,
     organizerContact: { phone: "+91 78787 87878", email: "cloud@nst.edu" }
   }
-];
+].filter(e => ['e_urgent_flash', 'e_mumbai', 'e1', 'e_cyber', 'e2', 'e_robowars', 'e_music', 'e_blockchain', 'e_datascience'].includes(e.id));
 
 const getCategoryStyles = (category: string) => {
   switch (category) {
@@ -686,6 +686,8 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   const [showTutorial, setShowTutorial] = useState(false);
   
   const [invitedPeersMap, setInvitedPeersMap] = useState<Record<string, Set<string>>>({});
+  const [isRecalculating, setIsRecalculating] = useState(false);
+
 
   const isRegistered = exploringEvent ? registeredIds.has(exploringEvent.id) : false;
   const isInterested = exploringEvent ? interestedIds.has(exploringEvent.id) : false;
@@ -761,7 +763,19 @@ export const EventsPage: React.FC<EventsPageProps> = ({
         .includes(query);
       const matchesDate = selectedDate ? e.dayOfMonth === selectedDate : true;
       return matchesCategory && matchesStatus && matchesSearch && matchesDate;
+    }).sort((a, b) => {
+      const aInt = interestedIds.has(a.id) ? 1 : 0;
+      const bInt = interestedIds.has(b.id) ? 1 : 0;
+      const aNot = notInterestedIds.has(a.id) ? 1 : 0;
+      const bNot = notInterestedIds.has(b.id) ? 1 : 0;
+      
+      // Interested first
+      if (aInt !== bInt) return bInt - aInt;
+      // Not interested last
+      if (aNot !== bNot) return aNot - bNot;
+      return 0;
     });
+
   }, [activeFilter, activeStatusFilter, searchQuery, selectedDate, interestedIds, registeredIds, notInterestedIds]);
 
   const clearFilters = () => {
@@ -771,9 +785,45 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   };
 
   const categories = useMemo(() => {
-    const nearDeadline = filteredData.filter(e => e.dayOfMonth >= TODAY_DAY && e.dayOfMonth <= TODAY_DAY + 3);
-    const upcoming = filteredData.filter(e => e.dayOfMonth > TODAY_DAY + 3);
-    const past = filteredData.filter(e => e.dayOfMonth < TODAY_DAY);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const nearDeadline = filteredData.filter(e => {
+      if (e.type === 'Closed') return false;
+      const evDate = new Date(e.date);
+      if (isNaN(evDate.getTime())) {
+        return e.dayOfMonth >= TODAY_DAY && e.dayOfMonth <= TODAY_DAY + 3;
+      }
+      evDate.setHours(0, 0, 0, 0);
+      
+      const diffTime = evDate.getTime() - today.getTime();
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+      return diffDays >= 0 && diffDays <= 3;
+    });
+
+    const upcoming = filteredData.filter(e => {
+      if (e.type === 'Closed') return false;
+      const evDate = new Date(e.date);
+      if (isNaN(evDate.getTime())) {
+        return e.dayOfMonth > TODAY_DAY + 3;
+      }
+      evDate.setHours(0, 0, 0, 0);
+      
+      const diffTime = evDate.getTime() - today.getTime();
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+      return diffDays > 3;
+    });
+
+    const past = filteredData.filter(e => {
+      if (e.type === 'Closed') return true;
+      const evDate = new Date(e.date);
+      if (isNaN(evDate.getTime())) {
+        return e.dayOfMonth < TODAY_DAY;
+      }
+      evDate.setHours(0, 0, 0, 0);
+      return evDate.getTime() < today.getTime();
+    });
+
     return { nearDeadline, upcoming, past };
   }, [filteredData]);
 
@@ -829,6 +879,24 @@ export const EventsPage: React.FC<EventsPageProps> = ({
     return "Just finished";
   };
 
+  const triggerRecalculation = () => {
+    setIsRecalculating(true);
+    setTimeout(() => {
+      setIsRecalculating(false);
+    }, 1200);
+  };
+
+  const handleToggleInterested = (id: string) => {
+    toggleInterested(id);
+    triggerRecalculation();
+  };
+
+  const handleMarkNotInterested = (id: string) => {
+    markNotInterested(id);
+    triggerRecalculation();
+  };
+
+
   const tutorialSteps: TutorialStep[] = [
     {
       targetId: 'tour-calendar',
@@ -840,7 +908,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
       targetId: 'tour-notifications',
       title: 'Notifications',
       content: 'Stay updated with alerts for upcoming events, deadline reminders, and invitations from peers.',
-      position: 'bottom'
+      position: 'left'
     },
     {
       targetId: 'tour-filter',
@@ -868,8 +936,28 @@ export const EventsPage: React.FC<EventsPageProps> = ({
     }
   ];
 
+  const EventSkeleton = () => (
+    <div className="bg-white rounded-[28px] overflow-hidden border border-slate-100 h-[340px] w-full flex flex-col shadow-sm animate-pulse">
+      <div className="aspect-video bg-slate-100" />
+      <div className="p-5 flex-1 flex flex-col justify-between">
+        <div className="space-y-3">
+          <div className="h-2 w-20 bg-slate-100 rounded" />
+          <div className="h-4 w-full bg-slate-100 rounded" />
+          <div className="h-4 w-2/3 bg-slate-100 rounded" />
+        </div>
+        <div className="flex flex-col gap-2 pt-4">
+          <div className="h-10 w-full bg-slate-100 rounded-xl" />
+          <div className="flex gap-2">
+            <div className="h-10 flex-1 bg-slate-100 rounded-xl" />
+            <div className="h-10 w-12 bg-slate-100 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderEventGrid = (events: CampusEvent[], title: string, Icon: any, colorClass: string, id?: string) => {
-    if (events.length === 0) return null;
+    if (!isRecalculating && events.length === 0) return null;
     return (
       <div className="space-y-6">
         <div id={id} className="flex items-center justify-between border-b border-slate-100 pb-3 px-1">
@@ -877,10 +965,21 @@ export const EventsPage: React.FC<EventsPageProps> = ({
             <Icon className={`w-4 h-4 ${colorClass.replace('bg-', 'text-')}`} />
             <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest">{title}</h2>
           </div>
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-60">{events.length} listings</span>
+          {isRecalculating ? (
+            <div className="flex items-center gap-2">
+               <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest animate-pulse">AI Algorithm Recalculating...</span>
+               <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce" />
+            </div>
+          ) : (
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-60">{events.length} listings</span>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 px-1">
-          {events.map((event) => {
+          {isRecalculating ? (
+            Array.from({ length: 4 }).map((_, i) => <EventSkeleton key={i} />)
+          ) : (
+            events.map((event) => {
+
             const isInterested = interestedIds.has(event.id);
             const isNotInterested = notInterestedIds.has(event.id);
             const isRegistered = registeredIds.has(event.id);
@@ -993,7 +1092,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                     
                     <div className="flex gap-2">
                        <button 
-                         onClick={() => toggleInterested(event.id)}
+                         onClick={() => handleToggleInterested(event.id)}
                          className={`flex-1 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border bg-white ${
                            isInterested 
                              ? 'text-rose-500 border-rose-200 shadow-sm' 
@@ -1004,7 +1103,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                          {isInterested ? 'Saved' : 'Interested'}
                        </button>
                        <button 
-                         onClick={() => markNotInterested(event.id)}
+                         onClick={() => handleMarkNotInterested(event.id)}
                          className={`px-3 py-2.5 rounded-xl transition-all border bg-white ${
                            isNotInterested 
                             ? 'text-slate-400 border-slate-200' 
@@ -1018,7 +1117,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                 </div>
               </div>
             );
-          })}
+          }))}
         </div>
       </div>
     );
@@ -1235,7 +1334,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                        
                        <div className="flex gap-2">
                            <button 
-                             onClick={() => toggleInterested(exploringEvent.id)}
+                             onClick={() => handleToggleInterested(exploringEvent.id)}
                              className={`px-6 py-3 rounded-xl border-2 font-bold transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none ${
                                 isInterested 
                                 ? 'border-rose-200 bg-rose-50 text-rose-600'
@@ -1248,7 +1347,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                            </button>
 
                            <button 
-                             onClick={() => markNotInterested(exploringEvent.id)}
+                             onClick={() => handleMarkNotInterested(exploringEvent.id)}
                              className={`px-6 py-3 rounded-xl border-2 font-bold transition-all flex items-center justify-center gap-2 ${
                                 isNotInterested 
                                 ? 'border-slate-300 bg-slate-100 text-slate-600'
@@ -1343,11 +1442,11 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                          {exploringEvent.tracks && exploringEvent.tracks.length > 0 && (
                             <div>
                                <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                                  <Cpu className="w-4 h-4 text-blue-500" /> Focus Tracks
+                                  <Cpu className="w-4 h-4 text-[#cc2929]" /> Focus Tracks
                                </h3>
                                <div className="flex flex-wrap gap-2">
                                   {exploringEvent.tracks.map(track => (
-                                     <span key={track} className="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 text-xs font-bold shadow-sm hover:bg-white hover:shadow-md transition-all cursor-default">
+                                     <span key={track} className="px-4 py-2.5 rounded-xl bg-[#fdfaf2] border border-[#ebdbb5] text-[#8c3a21] text-xs font-bold shadow-sm hover:border-[#cc2929]/50 transition-all cursor-default">
                                         {track}
                                      </span>
                                   ))}
@@ -1377,19 +1476,19 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                          )}
 
                          {/* Timeline */}
-                         <div className="bg-slate-50 rounded-[32px] p-8 border border-slate-100">
+                         <div className="bg-[#fdfaf2]/50 rounded-[32px] p-8 border border-[#ebdbb5]/60">
                              <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
-                               <Timer className="w-4 h-4" /> Schedule Flow
+                               <Timer className="w-4 h-4 text-[#cc2929]" /> Schedule Flow
                             </h3>
                             <div className="space-y-0 relative pl-2">
                                {/* Continuous Line */}
-                               <div className="absolute left-[13px] top-2 bottom-4 w-0.5 bg-slate-200" />
+                               <div className="absolute left-[13px] top-2 bottom-4 w-0.5 bg-[#ebdbb5]/80" />
                                
                                {exploringEvent.timeline.map((t, i) => (
                                   <div key={i} className="flex gap-6 relative pb-10 last:pb-0">
-                                     <div className="w-3 h-3 bg-blue-500 rounded-full mt-1.5 shrink-0 ring-4 ring-slate-50 relative z-10" />
+                                     <div className="w-3 h-3 bg-[#cc2929] rounded-full mt-1.5 shrink-0 ring-4 ring-[#fdfaf2] relative z-10" />
                                      <div>
-                                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest block mb-1">{t.time}</span>
+                                        <span className="text-[10px] font-black text-[#8c3a21] uppercase tracking-widest block mb-1">{t.time}</span>
                                         <h4 className="font-bold text-slate-900 text-base">{t.title}</h4>
                                         <p className="text-sm text-slate-500 mt-1 leading-relaxed">{t.desc}</p>
                                      </div>
@@ -1416,28 +1515,28 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                          )}
 
                          {/* Need Help Section - NEW */}
-                         <div className="border-t border-slate-100 pt-12">
+                         <div className="border-t border-[#ebdbb5]/60 pt-12">
                             <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
-                               <LifeBuoy className="w-4 h-4 text-slate-400" /> Organizer Contact
+                               <LifeBuoy className="w-4 h-4 text-[#cc2929]" /> Organizer Contact
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                               <a href={`tel:${exploringEvent.organizerContact?.phone}`} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-slate-200 hover:shadow-lg transition-all group">
-                                  <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-blue-600 group-hover:border-blue-100 transition-colors">
+                               <a href={`tel:${exploringEvent.organizerContact?.phone}`} className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-[#ebdbb5] hover:bg-[#fdfaf2]/40 hover:border-[#cc2929]/50 transition-all group">
+                                  <div className="w-12 h-12 rounded-xl bg-[#cc2929]/10 flex items-center justify-center text-[#cc2929] group-hover:bg-[#cc2929] group-hover:text-white transition-colors">
                                      <Phone className="w-5 h-5" />
                                   </div>
                                   <div>
                                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Emergency Contact</span>
-                                     <span className="text-sm font-black text-slate-800">{exploringEvent.organizerContact?.phone || "+91 99887 76655"}</span>
+                                     <span className="text-sm font-black text-[#cc2929]">{exploringEvent.organizerContact?.phone || "+91 99887 76655"}</span>
                                   </div>
                                </a>
                                
-                               <a href={`mailto:${exploringEvent.organizerContact?.email}`} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-slate-200 hover:shadow-lg transition-all group">
-                                  <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-rose-600 group-hover:border-rose-100 transition-colors">
+                               <a href={`mailto:${exploringEvent.organizerContact?.email}`} className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-[#ebdbb5] hover:bg-[#fdfaf2]/40 hover:border-[#cc2929]/50 transition-all group">
+                                  <div className="w-12 h-12 rounded-xl bg-[#cc2929]/10 flex items-center justify-center text-[#cc2929] group-hover:bg-[#cc2929] group-hover:text-white transition-colors">
                                      <Mail className="w-5 h-5" />
                                   </div>
                                   <div>
                                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Official Email</span>
-                                     <span className="text-sm font-black text-slate-800">{exploringEvent.organizerContact?.email || "events@nst.edu"}</span>
+                                     <span className="text-sm font-black text-[#cc2929]">{exploringEvent.organizerContact?.email || "events@nst.edu"}</span>
                                   </div>
                                </a>
                             </div>
@@ -1447,30 +1546,30 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                       {/* Sidebar Column */}
                       <div className="space-y-6">
                          {/* Key Info Card */}
-                         <div className="p-6 rounded-[32px] border border-slate-200 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] space-y-6">
-                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-b border-slate-100 pb-4">
+                         <div className="p-6 rounded-[32px] border border-[#ebdbb5] bg-[#fdfaf2] shadow-sm space-y-6">
+                            <h3 className="text-xs font-black text-[#8c3a21] uppercase tracking-[0.2em] border-b border-[#ebdbb5] pb-4">
                                Essentials
                             </h3>
                             
                             <div className="space-y-5">
                                <div>
                                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Eligibility</span>
-                                  <span className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                                     <GraduationCap className="w-4 h-4 text-slate-400" />
+                                  <span className="text-sm font-bold text-[#8c3a21] flex items-center gap-2">
+                                     <GraduationCap className="w-4 h-4 text-[#cc2929]" />
                                      {exploringEvent.eligibility}
                                   </span>
                                </div>
                                <div>
                                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Team Size</span>
-                                  <span className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                                     <Users2 className="w-4 h-4 text-slate-400" />
+                                  <span className="text-sm font-bold text-[#8c3a21] flex items-center gap-2">
+                                     <Users2 className="w-4 h-4 text-[#cc2929]" />
                                      {exploringEvent.teamSize}
                                   </span>
                                </div>
                                <div>
                                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Prize Pool</span>
-                                  <span className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                                     <Trophy className="w-4 h-4 text-amber-500" />
+                                  <span className="text-sm font-bold text-[#8c3a21] flex items-center gap-2">
+                                     <Trophy className="w-4 h-4 text-[#cc2929]" />
                                      {exploringEvent.prizePool || 'N/A'}
                                   </span>
                                </div>
@@ -1514,15 +1613,15 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                          )}
 
                          {/* XP Reward Card */}
-                         <div className="p-8 rounded-[32px] bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-xl shadow-blue-200 relative overflow-hidden group">
+                         <div className="p-8 rounded-[32px] bg-gradient-to-br from-[#cc2929] to-[#8c3a21] text-white shadow-xl shadow-[#cc2929]/20 relative overflow-hidden group">
                             <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
                             
                             <div className="relative z-10">
                                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mb-4 backdrop-blur-sm">
-                                 <Zap className="w-5 h-5 fill-white" />
+                                 <Zap className="w-5 h-5 fill-white text-white" />
                                </div>
                                <div className="text-4xl font-black mb-1 tracking-tight">{exploringEvent.xp} XP</div>
-                               <p className="text-blue-100 text-xs font-bold uppercase tracking-widest opacity-80">Earned upon completion</p>
+                               <p className="text-rose-100 text-xs font-bold uppercase tracking-widest opacity-80">Earned upon completion</p>
                             </div>
                          </div>
                       </div>
