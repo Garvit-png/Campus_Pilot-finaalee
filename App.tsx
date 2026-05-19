@@ -9,7 +9,8 @@ import { EventsPage, EVENTS_MOCK, CampusEvent } from './components/EventsPage';
 import { MiniFloatingCalendar } from './components/MiniFloatingCalendar';
 import { LoginPage } from './components/LoginPage';
 import { EventSplash } from './components/EventSplash';
-import { MessageSquareWarning, Ghost, ArrowRight, X, Radio, BellRing, Layout } from 'lucide-react';
+import { VerifyCertificatePage } from './components/VerifyCertificatePage';
+import { MessageSquareWarning, Ghost, ArrowRight, X, Radio, BellRing, Layout, Calendar as CalendarIcon } from 'lucide-react';
 
 // Helper to strictly parse event dates for comparison
 const parseEventDate = (dateStr: string) => {
@@ -52,7 +53,7 @@ const App: React.FC = () => {
   // Global Mocking State
   const [interestedIds, setInterestedIds] = useState<Set<string>>(new Set());
   const [notInterestedIds, setNotInterestedIds] = useState<Set<string>>(new Set());
-  const [registeredIds, setRegisteredIds] = useState<Set<string>>(new Set());
+  const [registeredIds, setRegisteredIds] = useState<Set<string>>(new Set(['e1', 'e_mumbai', 'e_cyber']));
   
   // Initialize with some IDs already "viewed" so the user doesn't see everything as NEW
   const [viewedEventIds, setViewedEventIds] = useState<Set<string>>(new Set(['e_mumbai', 'e2', 'e_design', 'e_cloud'])); 
@@ -373,6 +374,12 @@ const App: React.FC = () => {
     }
   };
 
+  // Check if it's the certificate verification page (scanned from phone)
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('verify') === 'true') {
+    return <VerifyCertificatePage />;
+  }
+
   // INTERSTITIAL SPLASH SCREEN FOR EVENTS
   if (showEventsSplash) {
     return <EventSplash onComplete={handleSplashComplete} />;
@@ -526,8 +533,8 @@ const App: React.FC = () => {
           />
         )}
         
-        <main className="flex-1 overflow-y-auto min-w-0 flex gap-4 no-scrollbar">
-          <div className="flex-1 min-w-0">
+        <main className="flex-1 overflow-y-auto min-w-0 flex flex-col lg:flex-row gap-4 no-scrollbar">
+          <div className="flex-1 min-w-0 pb-20 md:pb-0">
             {renderContent()}
           </div>
           
@@ -536,6 +543,44 @@ const App: React.FC = () => {
           )}
         </main>
       </div>
+
+      {/* Modern Glassmorphic Bottom Navigation Bar for Mobile */}
+      {!isDetailsOpen && (
+        <nav className="md:hidden fixed bottom-6 left-6 right-6 bg-white/80 backdrop-blur-xl border border-white/40 rounded-2xl py-3 px-6 shadow-[0_15px_35px_rgba(0,0,0,0.1)] flex justify-around items-center z-[9999] ring-1 ring-black/5">
+          <button 
+            onClick={() => handleTabChange('Dashboard')}
+            className={`flex flex-col items-center gap-1 transition-all ${
+              activeTab === 'Dashboard' ? 'text-orange-600 font-extrabold scale-105' : 'text-slate-400 font-medium'
+            }`}
+          >
+            <Layout className="w-5 h-5" />
+            <span className="text-[10px]">Dashboard</span>
+          </button>
+          
+          <button 
+            onClick={() => handleTabChange('Events')}
+            className={`flex flex-col items-center gap-1 relative transition-all ${
+              activeTab === 'Events' ? 'text-orange-600 font-extrabold scale-105' : 'text-slate-400 font-medium'
+            }`}
+          >
+            <Radio className="w-5 h-5" />
+            <span className="text-[10px]">Events</span>
+            {unopenedEventsCount > 0 && (
+              <span className="absolute -top-0.5 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
+            )}
+          </button>
+
+          <button 
+            onClick={() => handleTabChange('Calendar')}
+            className={`flex flex-col items-center gap-1 transition-all ${
+              activeTab === 'Calendar' ? 'text-orange-600 font-extrabold scale-105' : 'text-slate-400 font-medium'
+            }`}
+          >
+            <CalendarIcon className="w-5 h-5" />
+            <span className="text-[10px]">Calendar</span>
+          </button>
+        </nav>
+      )}
 
       <MiniFloatingCalendar 
         isOpen={isMiniCalendarOpen} 

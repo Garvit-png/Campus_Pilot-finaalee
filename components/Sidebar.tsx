@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, unope
     <aside 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`bg-white rounded-[32px] h-full flex flex-col pt-6 pb-6 shadow-sm transition-all duration-300 ease-in-out shrink-0 overflow-y-auto overflow-x-hidden ${
+      className={`hidden md:flex bg-white rounded-[32px] h-full flex-col pt-6 pb-6 shadow-sm transition-all duration-300 ease-in-out shrink-0 overflow-y-auto overflow-x-hidden ${
         isHovered ? 'w-64' : 'w-20'
       }`}
     >

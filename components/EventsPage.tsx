@@ -54,9 +54,12 @@ import {
   Mail,
   LifeBuoy,
   History,
-  Camera
+  Camera,
+  QrCode,
+  Download
 } from 'lucide-react';
 import { TutorialOverlay, TutorialStep } from './TutorialOverlay';
+import { CertificateModal } from './CertificateModal';
 
 export interface TimelineItem {
   time: string;
@@ -152,7 +155,7 @@ const urgentInfo = getUrgentDateInfo();
 
 let tutorialShownThisLoad = false;
 
-export const EVENTS_MOCK: CampusEvent[] = [
+export const EVENTS_MOCK: CampusEvent[] = ([
   {
     id: 'e_urgent_flash',
     title: 'Flash Code Sprint',
@@ -595,7 +598,7 @@ export const EVENTS_MOCK: CampusEvent[] = [
     certification: true,
     organizerContact: { phone: "+91 78787 87878", email: "cloud@nst.edu" }
   }
-].filter(e => ['e_urgent_flash', 'e_mumbai', 'e1', 'e_cyber', 'e2', 'e_robowars', 'e_music', 'e_blockchain', 'e_datascience'].includes(e.id));
+] as CampusEvent[]).filter(e => ['e_urgent_flash', 'e_mumbai', 'e1', 'e_cyber', 'e2', 'e_robowars', 'e_music', 'e_blockchain', 'e_datascience'].includes(e.id));
 
 const getCategoryStyles = (category: string) => {
   switch (category) {
@@ -682,6 +685,276 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showPeersModal, setShowPeersModal] = useState(false);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
+  const [certificateEvent, setCertificateEvent] = useState<CampusEvent | null>(null);
+  const [recipientName, setRecipientName] = useState('Garvit Dev');
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadCertificate = async (event: CampusEvent) => {
+    setIsDownloading(true);
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 800;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get 2d context');
+
+      // 1. Draw elegant background gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, 1200, 800);
+      bgGrad.addColorStop(0, '#FCFBF7');
+      bgGrad.addColorStop(0.5, '#F9F6ED');
+      bgGrad.addColorStop(1, '#F3EFE3');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 1200, 800);
+
+      // 2. Draw border patterns
+      ctx.strokeStyle = '#D4AF37'; // Gold
+      ctx.lineWidth = 6;
+      ctx.strokeRect(30, 30, 1140, 740);
+
+      ctx.strokeStyle = '#D4AF37';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(40, 40, 1120, 720);
+
+      // Inner Slate Border
+      ctx.strokeStyle = '#1e293b'; // Slate 800
+      ctx.lineWidth = 3;
+      ctx.strokeRect(55, 55, 1090, 690);
+
+      // Corner Ornaments
+      const drawCornerOrnament = (cx: number, cy: number, rot: number) => {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rot);
+        ctx.fillStyle = '#D4AF37';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(25, 0);
+        ctx.lineTo(25, 5);
+        ctx.lineTo(5, 5);
+        ctx.lineTo(5, 25);
+        ctx.lineTo(0, 25);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      };
+      drawCornerOrnament(55, 55, 0);
+      drawCornerOrnament(1145, 55, Math.PI / 2);
+      drawCornerOrnament(1145, 745, Math.PI);
+      drawCornerOrnament(55, 745, -Math.PI / 2);
+
+      // 3. Header Text
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#475569';
+      ctx.font = "bold 13px 'Montserrat', 'Helvetica Neue', Arial, sans-serif";
+      ctx.textBaseline = 'top';
+      ctx.fillText("CAMPUS PILOT • NATIONAL INSTITUTE OF TECHNOLOGY", 600, 95);
+
+      // 4. Main Certificate Title
+      ctx.fillStyle = '#0f172a';
+      ctx.font = "black 42px 'Georgia', serif";
+      ctx.fillText("CERTIFICATE OF EXCELLENCE", 600, 135);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = "italic 16px 'Georgia', serif";
+      ctx.fillText("This certificate is proudly presented to", 600, 210);
+
+      // 5. Student Name
+      ctx.fillStyle = '#8c3a21';
+      ctx.font = "bold 44px 'Georgia', serif";
+      ctx.fillText(recipientName || 'Garvit Dev', 600, 250);
+
+      // Underline name beautifully
+      ctx.strokeStyle = '#D4AF37';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(400, 310);
+      ctx.lineTo(800, 310);
+      ctx.stroke();
+
+      // 6. Citation Details
+      ctx.fillStyle = '#64748b';
+      ctx.font = "15px 'Georgia', serif";
+      ctx.fillText("for successful completion and outstanding performance in the campus-wide hackathon", 600, 340);
+
+      // Event Title
+      ctx.fillStyle = '#cc2929';
+      ctx.font = "bold 26px 'Montserrat', Arial, sans-serif";
+      ctx.fillText(event.title.toUpperCase(), 600, 380);
+
+      ctx.fillStyle = '#475569';
+      ctx.font = "14px 'Georgia', serif";
+      ctx.fillText(`held at ${event.location || 'Innovation Wing'} on ${event.date || 'Campus Hub'}.`, 600, 425);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = "bold 14px 'Montserrat', sans-serif";
+      ctx.fillText(`AWARDED: ${event.xp} XP & SHIELD OF HONOR`, 600, 460);
+
+      // 7. Signature Areas
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(150, 620);
+      ctx.lineTo(380, 620);
+      ctx.stroke();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = "italic 22px 'Georgia', serif";
+      ctx.fillText("Dr. Sarah Chen", 265, 580);
+      ctx.fillStyle = '#64748b';
+      ctx.font = "bold 11px 'Montserrat', sans-serif";
+      ctx.fillText("HEAD OF JURY & AI LABS", 265, 635);
+
+      ctx.beginPath();
+      ctx.moveTo(820, 620);
+      ctx.lineTo(1050, 620);
+      ctx.stroke();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = "italic 22px 'Georgia', serif";
+      ctx.fillText("Prof. R. K. Sharma", 935, 580);
+      ctx.fillStyle = '#64748b';
+      ctx.font = "bold 11px 'Montserrat', sans-serif";
+      ctx.fillText("CAMPUS DIRECTOR, NST", 935, 635);
+
+      // 8. Seal of Verification (Gold Seal)
+      const sealX = 600;
+      const sealY = 590;
+      const sealRadius = 55;
+
+      ctx.fillStyle = '#D4AF37';
+      ctx.strokeStyle = '#c5a028';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < 40; i++) {
+        const angle = (i * Math.PI * 2) / 40;
+        const outerR = sealRadius + (i % 2 === 0 ? 6 : 0);
+        const sx = sealX + Math.cos(angle) * outerR;
+        const sy = sealY + Math.sin(angle) * outerR;
+        if (i === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(sealX, sealY, sealRadius, 0, Math.PI * 2);
+      const sealGrad = ctx.createRadialGradient(sealX, sealY, 10, sealX, sealY, sealRadius);
+      sealGrad.addColorStop(0, '#f9e69c');
+      sealGrad.addColorStop(0.7, '#D4AF37');
+      sealGrad.addColorStop(1, '#a67c1e');
+      ctx.fillStyle = sealGrad;
+      ctx.fill();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(sealX, sealY, sealRadius - 7, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = "bold 10px 'Montserrat', sans-serif";
+      ctx.fillText("VERIFIED", sealX, sealY - 12);
+      ctx.font = "18px Arial";
+      ctx.fillText("★", sealX, sealY + 4);
+      ctx.font = "bold 9px 'Montserrat', sans-serif";
+      ctx.fillText("CP-SECURE", sealX, sealY + 18);
+
+      ctx.fillStyle = '#b48a17';
+      ctx.beginPath();
+      ctx.moveTo(sealX - 25, sealY + sealRadius - 5);
+      ctx.lineTo(sealX - 45, sealY + sealRadius + 35);
+      ctx.lineTo(sealX - 25, sealY + sealRadius + 25);
+      ctx.lineTo(sealX - 5, sealY + sealRadius + 35);
+      ctx.lineTo(sealX - 15, sealY + sealRadius - 5);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(sealX + 15, sealY + sealRadius - 5);
+      ctx.lineTo(sealX + 5, sealY + sealRadius + 35);
+      ctx.lineTo(sealX + 25, sealY + sealRadius + 25);
+      ctx.lineTo(sealX + 45, sealY + sealRadius + 35);
+      ctx.lineTo(sealX + 25, sealY + sealRadius - 5);
+      ctx.closePath();
+      ctx.fill();
+
+      // 9. QR Code and Certificate Meta bottom corner
+      const certId = `CP-CERT-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      ctx.fillStyle = '#64748b';
+      ctx.font = "10px monospace";
+      ctx.textAlign = 'left';
+      ctx.fillText(`VERIFY ID: ${certId}`, 70, 715);
+      ctx.fillText(`SYSTEM SECURE TIMESTAMP: 2026-05-18`, 70, 730);
+
+      // Draw custom scannable mock QR code block
+      const qrX = 1030;
+      const qrY = 650;
+      const qrSize = 90;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX, qrY, qrSize, qrSize);
+      ctx.strokeStyle = '#D4AF37';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(qrX - 2, qrY - 2, qrSize + 4, qrSize + 4);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(qrX + 5, qrY + 5, 20, 20);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX + 9, qrY + 9, 12, 12);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(qrX + 12, qrY + 12, 6, 6);
+
+      ctx.fillRect(qrX + qrSize - 25, qrY + 5, 20, 20);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX + qrSize - 21, qrY + 9, 12, 12);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(qrX + qrSize - 18, qrY + 12, 6, 6);
+
+      ctx.fillRect(qrX + 5, qrY + qrSize - 25, 20, 20);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX + 9, qrY + qrSize - 21, 12, 12);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(qrX + 12, qrY + qrSize - 18, 6, 6);
+
+      ctx.fillRect(qrX + 35, qrY + 10, 10, 5);
+      ctx.fillRect(qrX + 50, qrY + 8, 8, 8);
+      ctx.fillRect(qrX + 30, qrY + 25, 15, 12);
+      ctx.fillRect(qrX + 55, qrY + 30, 10, 10);
+      ctx.fillRect(qrX + 35, qrY + 50, 8, 15);
+      ctx.fillRect(qrX + 50, qrY + 45, 15, 8);
+      ctx.fillRect(qrX + 70, qrY + 45, 8, 12);
+      ctx.fillRect(qrX + 30, qrY + 70, 25, 6);
+      ctx.fillRect(qrX + 60, qrY + 65, 10, 15);
+      ctx.fillRect(qrX + 75, qrY + 70, 8, 8);
+
+      const link = document.createElement('a');
+      link.download = `CampusPilot_Certificate_${event.title.replace(/\s+/g, '_')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const launchCertificate = (event: CampusEvent) => {
+    setCertificateEvent(event);
+    setShowCertificateModal(true);
+  };
+
+  const isPastEvent = (e: CampusEvent) => {
+    if (e.type === 'Closed') return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const evDate = new Date(e.date);
+    if (isNaN(evDate.getTime())) {
+      return e.dayOfMonth < TODAY_DAY;
+    }
+    evDate.setHours(0, 0, 0, 0);
+    return evDate.getTime() < today.getTime();
+  };
   
   const [showTutorial, setShowTutorial] = useState(false);
   
@@ -692,7 +965,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   const isRegistered = exploringEvent ? registeredIds.has(exploringEvent.id) : false;
   const isInterested = exploringEvent ? interestedIds.has(exploringEvent.id) : false;
   const isNotInterested = exploringEvent ? notInterestedIds.has(exploringEvent.id) : false;
-  const isExploringEventPast = exploringEvent ? exploringEvent.dayOfMonth < TODAY_DAY : false;
+  const isExploringEventPast = exploringEvent ? isPastEvent(exploringEvent) : false;
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -740,6 +1013,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
     setShowConfirmModal(false);
     setShowSuccessModal(false);
     setShowPeersModal(false);
+    setShowCertificateModal(false);
   };
 
   const filteredData = useMemo(() => {
@@ -1102,6 +1376,16 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                          <Heart className={`w-3 h-3 ${isInterested ? 'fill-rose-500' : ''}`} />
                          {isInterested ? 'Saved' : 'Interested'}
                        </button>
+                       {event.certification && isPastEvent(event) && registeredIds.has(event.id) && (
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); launchCertificate(event); }}
+                            className="px-3 py-2.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-600 transition-all flex items-center justify-center gap-1 active:scale-95"
+                            title="Certificate QR Code"
+                          >
+                            <QrCode className="w-3.5 h-3.5" />
+                            <span className="text-[8px] font-black uppercase tracking-widest hidden xl:inline">QR</span>
+                          </button>
+                       )}
                        <button 
                          onClick={() => handleMarkNotInterested(event.id)}
                          className={`px-3 py-2.5 rounded-xl transition-all border bg-white ${
@@ -1365,6 +1649,126 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                         <CheckCircle2 className="w-5 h-5" /> You are registered for this event.
                       </div>
                    )}
+
+                   {exploringEvent.certification && isExploringEventPast && isRegistered && (
+                       <div className="mb-8 space-y-6">
+                         
+                         {/* Header of Certificate section */}
+                         <div className="flex flex-col gap-1 text-left">
+                           <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                             <Award className="w-5.5 h-5.5 text-amber-500 fill-amber-100" /> Your Earned Certificate
+                           </h3>
+                           <p className="text-xs text-slate-400 font-medium">
+                             You successfully participated and completed this event! Here is your verified digital credential.
+                           </p>
+                         </div>
+
+                         {/* Customizer Name Input */}
+                         <div className="flex flex-col gap-2 p-5 bg-slate-50 border border-slate-200/60 rounded-[24px] text-left">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                             <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" /> Customize Recipient Name
+                           </label>
+                           <input 
+                             type="text" 
+                             value={recipientName}
+                             onChange={(e) => setRecipientName(e.target.value)}
+                             className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm"
+                             placeholder="Enter custom recipient name..."
+                           />
+                         </div>
+
+                         {/* High-Fidelity Classical Certificate Frame (Live update) */}
+                         <div className="w-full overflow-hidden flex items-center justify-center p-1 bg-slate-900 border border-slate-800 rounded-[28px] shadow-2xl relative aspect-[1.5/1] select-none">
+                           <div className="w-full h-full scale-[0.98] sm:scale-100 transition-all origin-center bg-gradient-to-br from-[#fdfcf7] to-[#f4f0e4] rounded-[22px] border-4 border-double border-amber-500/80 p-4 sm:p-8 flex flex-col justify-between text-slate-800 relative">
+                             {/* Corner Ornaments */}
+                             <div className="absolute top-3 left-3 w-4 h-4 border-t border-l border-amber-500/60" />
+                             <div className="absolute top-3 right-3 w-4 h-4 border-t border-r border-amber-500/60" />
+                             <div className="absolute bottom-3 left-3 w-4 h-4 border-b border-l border-amber-500/60" />
+                             <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r border-amber-500/60" />
+
+                             {/* Content Top */}
+                             <div className="text-center space-y-0.5">
+                               <span className="text-[7px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 font-sans">
+                                 Campus Pilot Academy
+                               </span>
+                               <h3 className="text-xs sm:text-2xl font-black text-slate-900 tracking-tight font-serif">
+                                 Certificate of Excellence
+                               </h3>
+                               <p className="text-[6px] sm:text-[10px] italic text-slate-400 font-serif leading-none">
+                                 This is proudly presented to
+                               </p>
+                             </div>
+
+                             {/* Content Mid */}
+                             <div className="text-center my-1 sm:my-2">
+                               <h1 className="text-md sm:text-3xl font-extrabold text-[#8c3a21] font-serif tracking-wide truncate">
+                                 {recipientName || 'Garvit Dev'}
+                               </h1>
+                               <div className="w-1/4 h-0.5 bg-amber-500/30 mx-auto my-1" />
+                               <p className="text-[5px] sm:text-[9px] text-slate-500 font-serif leading-relaxed max-w-sm mx-auto">
+                                 for successful completion and outstanding performance in the campus hackathon
+                               </p>
+                               <h4 className="text-[9px] sm:text-base font-black text-[#cc2929] uppercase tracking-wider mt-0.5 font-sans">
+                                 {exploringEvent.title}
+                               </h4>
+                             </div>
+
+                             {/* Content Bottom */}
+                             <div className="flex justify-between items-end pt-1.5 sm:pt-3 border-t border-slate-200/50">
+                               <div className="text-left w-[80px] sm:w-[120px]">
+                                 <span className="font-serif italic text-[7px] sm:text-sm text-slate-700 font-bold tracking-wider leading-none block">
+                                   Dr. Sarah Chen
+                                 </span>
+                                 <div className="h-px bg-slate-300 w-full my-0.5" />
+                                 <span className="text-[4px] sm:text-[7px] font-black text-slate-400 uppercase tracking-wider block font-sans">
+                                   Head of Jury
+                                 </span>
+                               </div>
+
+                               <div className="relative">
+                                 <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-300 to-amber-600 flex items-center justify-center border border-white/20 shadow-sm">
+                                   <span className="text-[5px] sm:text-[8px] font-black text-white">★</span>
+                                 </div>
+                               </div>
+
+                               <div className="text-right w-[80px] sm:w-[120px]">
+                                 <span className="font-serif italic text-[7px] sm:text-sm text-slate-700 font-bold tracking-wider leading-none block">
+                                   Prof. Sharma
+                                 </span>
+                                 <div className="h-px bg-slate-300 w-full my-0.5" />
+                                 <span className="text-[4px] sm:text-[7px] font-black text-slate-400 uppercase tracking-wider block font-sans">
+                                   Campus Director
+                                 </span>
+                               </div>
+                             </div>
+                           </div>
+                         </div>
+
+                         {/* Action Buttons: Launch QR Modal + Download Image */}
+                         <div className="flex flex-col sm:flex-row gap-3">
+                           <button 
+                             onClick={() => launchCertificate(exploringEvent)}
+                             className="flex-1 px-6 py-4 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                           >
+                             <QrCode className="w-4 h-4 animate-pulse" /> Mobile Claim QR
+                           </button>
+                           <button 
+                             onClick={() => handleDownloadCertificate(exploringEvent)}
+                             disabled={isDownloading}
+                             className={`flex-1 px-6 py-4 bg-slate-900 hover:bg-black text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 border border-slate-800 \${
+                               isDownloading ? 'opacity-80 cursor-wait' : ''
+                             }`}
+                           >
+                             {isDownloading ? (
+                               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                             ) : (
+                               <Download className="w-4 h-4" />
+                             )}
+                             {isDownloading ? 'Downloading...' : 'Download Certificate'}
+                           </button>
+                         </div>
+                       </div>
+                    )}
 
                    {/* Global Participants Insight */}
                    <div className="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-12">
@@ -1731,6 +2135,15 @@ export const EventsPage: React.FC<EventsPageProps> = ({
              )}
           </div>,
           document.body
+      )}
+
+      {/* Certificate Modal */}
+      {certificateEvent && (
+        <CertificateModal 
+          isOpen={showCertificateModal}
+          onClose={() => setShowCertificateModal(false)}
+          event={certificateEvent}
+        />
       )}
     </div>
   );

@@ -18,35 +18,35 @@ export const MainDashboard: React.FC = () => {
          </div>
 
          {/* Poster Image Area */}
-         <div className="w-full bg-[#cc2929] rounded-[24px] overflow-hidden mb-6 relative aspect-[16/9] flex items-center justify-center relative shadow-inner">
+         <div className="w-full bg-[#cc2929] rounded-[24px] overflow-hidden mb-6 relative aspect-[16/9] sm:aspect-[16/9] min-h-[380px] sm:min-h-0 flex items-center justify-center shadow-inner py-4 sm:py-0">
             {/* Background Text Pattern */}
-            <div className="absolute inset-0 opacity-10 flex flex-col justify-between p-4 mix-blend-overlay break-words overflow-hidden leading-none text-[120px] font-black text-black">
+            <div className="absolute inset-0 opacity-10 flex flex-col justify-between p-4 mix-blend-overlay break-words overflow-hidden leading-none text-[80px] sm:text-[120px] font-black text-black select-none pointer-events-none">
                GUGUGUGUGUGUGUGUGU
             </div>
             {/* Content Foreground */}
-            <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 bg-[#ebdbb5] w-[80%] h-[80%] rounded-xl shadow-2xl border-4 border-[#fff1d6]">
-               <h2 className="text-[#a12323] font-black text-2xl mb-4 leading-tight">
-                 SOLVING THE MYSTERIES OF<br/>SLEEP: NARCOLEPSY- SLEEP<br/>STRESS AND OREXIN
+            <div className="relative z-10 flex flex-col items-center justify-center text-center p-4 sm:p-6 bg-[#ebdbb5] w-[92%] sm:w-[85%] md:w-[80%] h-[92%] sm:h-[80%] rounded-[20px] shadow-2xl border-2 sm:border-4 border-[#fff1d6]">
+               <h2 className="text-[#a12323] font-black text-sm sm:text-lg md:text-2xl mb-3 sm:mb-4 leading-tight">
+                 SOLVING THE MYSTERIES OF<br className="hidden sm:block"/>SLEEP: NARCOLEPSY- SLEEP<br className="hidden sm:block"/>STRESS AND OREXIN
                </h2>
-               <div className="flex gap-2">
-                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#dfa47e]/30 text-[#8c3a21] border border-[#d68f63] rounded-full text-[10px] font-bold">
-                    <CalendarIcon className="w-3 h-3" /> 7th Jan 2026
+               <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+                 <span className="flex items-center gap-1 px-2.5 py-1 bg-[#dfa47e]/30 text-[#8c3a21] border border-[#d68f63] rounded-full text-[8px] sm:text-[10px] font-bold">
+                    <CalendarIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> 7th Jan 2026
                  </span>
-                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#dfa47e]/30 text-[#8c3a21] border border-[#d68f63] rounded-full text-[10px] font-bold">
-                    <Clock className="w-3 h-3" /> 10:00 AM - 11:00 AM
+                 <span className="flex items-center gap-1 px-2.5 py-1 bg-[#dfa47e]/30 text-[#8c3a21] border border-[#d68f63] rounded-full text-[8px] sm:text-[10px] font-bold">
+                    <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> 10:00 AM - 11:00 AM
                  </span>
-                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#dfa47e]/30 text-[#8c3a21] border border-[#d68f63] rounded-full text-[10px] font-bold">
-                    <MapPin className="w-3 h-3 text-rose-700" /> Mini Auditorium
+                 <span className="flex items-center gap-1 px-2.5 py-1 bg-[#dfa47e]/30 text-[#8c3a21] border border-[#d68f63] rounded-full text-[8px] sm:text-[10px] font-bold">
+                    <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-rose-700" /> Mini Auditorium
                  </span>
                </div>
                
-               <div className="mt-8 flex items-center gap-6 text-left w-full pl-8">
-                 <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white shadow-xl shrink-0">
+               <div className="mt-4 sm:mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-3 sm:gap-6 text-center sm:text-left w-full pl-0 sm:pl-8">
+                 <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full border-2 sm:border-4 border-white overflow-hidden bg-white shadow-xl shrink-0">
                     <img src="https://i.pravatar.cc/250?img=11" alt="Speaker" className="w-full h-full object-cover" />
                  </div>
                  <div>
-                    <h3 className="text-[#c73d3d] font-black text-xl mb-1">Dr. Mahesh K. Kaushik</h3>
-                    <p className="text-sm font-semibold text-[#8c3a21]">Assistant Professor and<br/>Neuroscientist<br/>IIIS, University of<br/>TSUKUBA, Japan</p>
+                    <h3 className="text-[#c73d3d] font-black text-sm sm:text-base md:text-xl mb-0.5 sm:mb-1">Dr. Mahesh K. Kaushik</h3>
+                    <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-[#8c3a21] leading-tight">Assistant Professor and Neuroscientist<br className="hidden sm:block"/>IIIS, University of TSUKUBA, Japan</p>
                  </div>
                </div>
             </div>
